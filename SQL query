@@ -1,0 +1,59 @@
+SELECT * FROM datas;
+select* from reason;
+alter table reason rename column MyUnknownColumn TO District ;
+-- number of rows into our dataset
+
+select count(*) from datas;
+select count(*) from reason;
+
+-- dataset for jharkhand and bihar
+select * from datas where state in ('Jharkhand' , 'Bihar');
+
+-- total population of India
+select sum(Population) as Population from reason;
+
+-- avg growth 
+
+select avg(growth)*100 avg_growth from datas;
+
+-- avg sex ratio
+select state,round(avg(sex_ratio),0) avg_sex_ratio from datas group by state order by avg_sex_ratio desc;
+
+
+-- avg literacy rate
+select state,round(avg(literacy),0) avg_literacy_ratio from datas;
+select state,round(avg(literacy),0) avg_literacy_ratio from datas group by state order by avg_literacy_ratio desc;
+select state,round(avg(literacy),0) avg_literacy_ratio from datas group by state 
+ having round(avg(literacy),0)>90 order by avg_literacy_ratio desc;
+ 
+-- top 3 state showing highest growth ratio
+select state, avg(growth) avg_growth from datas group by state order by avg_growth desc limit 3;
+
+--bottom 3 state showing lowest sex ratio
+select state,round(avg(sex_ratio),0) avg_sex_ratio from datas group by state order by avg_sex_ratio asc limit 3 ;
+
+
+
+
+
+-- states starting with letter a
+select distinct state from datas where lower(state) like 'a%' or lower(state) like'b%';
+select distinct state from datas where lower(state) like 'a%' and lower(state) like '%m';
+
+-- joining both table
+select d.District,d.State,d.Sex_Ratio,r.Population from datas d inner join reason r on d.District=d.District;
+
+-- total literacy rate
+select sum(literacy) as literacy from datas;
+
+select c.state,sum(literate_people) total_literate_pop,sum(illiterate_people) total_lliterate_pop from 
+(select d.district,d.state,round(d.literacy_ratio*d.population,0) literate_people,
+round((1-d.literacy_ratio)* d.population,0) illiterate_people from
+(select a.district,a.state,a.literacy/100 literacy_ratio,b.population from datas a 
+inner join reason b on a.district=b.district) d) c
+group by c.state ;
+
+
+select district,state,literacy,rank() over(partition by state order by literacy desc) rnk from datas) a
+
+where a.rnk in (1,2,3) order by state
